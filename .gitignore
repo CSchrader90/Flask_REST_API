@@ -1,0 +1,3 @@
+instance/.env
+.vscode/*
+flask_rest_env/*
