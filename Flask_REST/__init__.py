@@ -3,7 +3,7 @@ from flask import Flask
 import os
 
 from .models.models import *
-from instance.config import *
+from instance.config import DevelopmentConfig, TestConfig, ProductionConfig
 from Flask_REST.endpoints.channels.v1 import channel_endpoint as channel_v1
 from Flask_REST.endpoints.articles.v1 import article_endpoint as article_v1
 

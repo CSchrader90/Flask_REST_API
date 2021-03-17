@@ -4,25 +4,32 @@ from flask_restful import abort
 import requests
 
 from Flask_REST.models.models import ArticleModel, ChannelModel, ArticleSchema, db
+from Logging.loggers import article_logger
 
-def post(self):
-	""" Add article provided at URL """
+def post(self, article_id):
+    """ Add article provided at URL """
 
-	if not request.is_json or not request.get_json()["article_url"]:
-		return make_response("Bad request - URL not provided", 400)
-    
-	request_args = request.get_json()
-	title, word_count = fetch_url(request_args["article_url"])
+    if not request.is_json:
+        return make_response("Bad request - no JSON body", 400)
+    url = request.get_json()["article_url"]
+    article_logger.info(f"Received request to add article|[url: {url}]")
 
-	old_entry = ArticleModel.query.filter_by(article_url=request_args["article_url"]).first()
-	if old_entry:
-		db.session.delete(old_entry)
+    if not request.is_json or not request.get_json()["article_url"]:
+        return make_response("Bad request - URL not provided", 400)
 
-	article = ArticleModel(article_url=request_args["article_url"], word_count=word_count, title=title)
-	db.session.add(article)
-	db.session.commit()
+    request_args = request.get_json()
+    title, word_count = fetch_url(request_args["article_url"])
 
-	return make_response("Article Entered", 201)
+    # if article entry at URL exists, fetch again (possible update)
+    old_entry = ArticleModel.query.filter_by(article_url=request_args["article_url"]).first()
+    if old_entry:
+        db.session.delete(old_entry)
+
+    article = ArticleModel(article_url=request_args["article_url"], word_count=word_count, title=title)
+    db.session.add(article)
+    db.session.commit()
+
+    return make_response("Article Entered", 201)
 
 def fetch_url(url):
     try:

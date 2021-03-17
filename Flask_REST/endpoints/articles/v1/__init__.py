@@ -11,4 +11,5 @@ class Articles(MethodView):
 
 article_view = Articles.as_view("articles")
 article_endpoint = Blueprint("article_bp", __name__, url_prefix="/v1")
-article_endpoint.add_url_rule("/articles", view_func=article_view)
+article_endpoint.add_url_rule("/articles/", defaults={"article_id": 0}, view_func=article_view)
+article_endpoint.add_url_rule("/articles/<int:article_id>", view_func=article_view)

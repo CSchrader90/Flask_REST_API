@@ -1,8 +1,9 @@
 from flask import jsonify, make_response, request
 
 from Flask_REST.models.models import ChannelModel, ChannelSchema, db
+from Logging.loggers import channel_logger
 
-def post(self):
+def post(self, channel_name):
 	"""Add a new channel"""
 
 	if not request.is_json:

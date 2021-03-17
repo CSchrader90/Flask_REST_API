@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from marshmallow_sqlalchemy import ModelSchema
+import uuid
 
 from sqlalchemy.dialects.postgresql import JSON
 
@@ -22,7 +23,8 @@ class ChannelModel(db.Model):
         return f"channel: {self.channel}\n"
 
 class ArticleModel(db.Model):
-    article_url = db.Column(db.String, primary_key=True)
+    article_id = db.Column(db.Integer,primary_key=True)
+    article_url = db.Column(db.String)
     title = db.Column(db.String, nullable=False)
     word_count = db.Column(db.Integer, nullable=False)
     channels = db.relationship("ChannelModel", secondary=ass_table)

@@ -2,21 +2,22 @@ from flask import request, make_response, jsonify
 import requests
 
 from Flask_REST.models.models import ArticleModel, ChannelModel, ArticleSchema, db
+from Logging.loggers import article_logger
 
-def patch(self):
+def patch(self, article_id):
 	""" Remove an article from a channel"""
+
+	if article_id == 0:
+		return make_response("Bad request - article_id not provided", 400)
+
 	if not request.is_json:
 		return make_response("Bad request - JSON body not provided", 400)
 
-	if "article_url" not in request.args:
-		return make_response("Valid URL not provided", 400)
-
 	request_body = request.get_json()
-
 	if "channel_name" not in request_body:
 		return make_response("Channel name not provided", 400)
 
-	article = ArticleModel.query.filter_by(article_url=request.args["article_url"]).first()
+	article = ArticleModel.query.filter_by(article_id=article_id).first()
 	if not article:
 		return make_response("Article not found", 404)
 
@@ -27,4 +28,3 @@ def patch(self):
 	channel.articles.remove(article)
 	db.session.commit()
 	return make_response("Article removed from channel", 200)
-
