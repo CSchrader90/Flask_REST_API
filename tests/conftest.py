@@ -8,7 +8,7 @@ def start_server(xprocess):
     os.environ["FLASK_ENV"] = "test"
 
     class Starter(ProcessStarter):
-        pattern = 'Running'
+        pattern = "Running"
         args = ["flask", "run"]
 
     timeout = 10

@@ -9,13 +9,22 @@ from instance.config import *
 
 db = SQLAlchemy()
 
+class User(db.Model):
+    username = db.Column(db.String, unique=True)
+    password = db.Column(db.String(80))
+    private_id  = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(50), unique=True)
+    is_root  = db.Column(db.Boolean)
+
 # association table many-to-many relationship between articles and channels
 ass_table = db.Table('ass_table',
-                     db.Column('article_url', db.String, db.ForeignKey('article_model.article_url')),
-                     db.Column('channel', db.Integer, db.ForeignKey('channel_model.channel')),
+                     db.Column('article_id', db.Integer, db.ForeignKey('article_model.article_id')),
+                     db.Column('channel', db.String, db.ForeignKey('channel_model.channel')),
+                     db.Column('username', db.String, db.ForeignKey('user.username')),
                      db.Column('time_added', db.DateTime, nullable=False, default=datetime.utcnow))
 
 class ChannelModel(db.Model):
+    user    = db.Column(db.String, db.ForeignKey('user.username'))
     channel = db.Column(db.String, primary_key=True)
     articles = db.relationship("ArticleModel", secondary=ass_table)
 
@@ -23,7 +32,8 @@ class ChannelModel(db.Model):
         return f"channel: {self.channel}\n"
 
 class ArticleModel(db.Model):
-    article_id = db.Column(db.Integer,primary_key=True)
+    user    = db.Column(db.String, db.ForeignKey('user.username'))
+    article_id = db.Column(db.Integer, primary_key=True)
     article_url = db.Column(db.String)
     title = db.Column(db.String, nullable=False)
     word_count = db.Column(db.Integer, nullable=False)

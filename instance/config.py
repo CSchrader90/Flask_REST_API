@@ -12,11 +12,12 @@ class BaseConfig:
 
 class TestConfig():
     SQLALCHEMY_TRACK_MODIFICATIONS=True
-    SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_TEST_DATABASE_URI")
+    SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_PROD_DATABASE_URI")
     DEBUG=True
 
 class ProductionConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS=False
+    SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_PROD_DATABASE_URI")
 
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS=True
@@ -26,5 +27,5 @@ class DevelopmentConfig(BaseConfig):
 # Logging configuration
 CHANNEL_LOG_NAME = "channel_log"
 ARTICLE_LOG_NAME = "article_log"
-CHANNEL_LOG_FILE = "Logging/channel.log"
-ARTICLE_LOG_FILE = "Logging/article.log"
+CHANNEL_LOG_FILE = "channel.log"
+ARTICLE_LOG_FILE = "article.log"

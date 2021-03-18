@@ -1,4 +1,4 @@
-import os
+import os, sys
 import logging
 
 from instance.config import CHANNEL_LOG_NAME, CHANNEL_LOG_FILE
@@ -26,8 +26,8 @@ if os.environ.get("FLASK_ENV") == "production":
     channel_logger.setLevel(logging.INFO)
     article_logger.setLevel(logging.INFO)
 elif os.environ.get("FLASK_ENV") == "test":
-    channel_logger.setLevel(logging.WARNING)
-    article_logger.setLevel(logging.WARNING)
+    channel_logger.setLevel(logging.DEBUG)
+    article_logger.setLevel(logging.DEBUG)
 elif os.environ.get("FLASK_ENV") == "development":
     channel_logger.setLevel(logging.DEBUG)
     article_logger.setLevel(logging.DEBUG)

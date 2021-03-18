@@ -19,7 +19,7 @@ def put(self, article_id):
 
 	article_exists = ArticleModel.query.filter_by(article_id=article_id).first()
 	if not article_exists:
-		return make_response("Article at provided URL not found", 404)
+		return make_response("Article with provided id not found", 404)
 
 	new_channel_name = request.get_json()["channel_name"]
 	channel = ChannelModel.query.filter_by(channel=new_channel_name).first()

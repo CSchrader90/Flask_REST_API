@@ -8,11 +8,9 @@ TEST_URL = "https://www.visitfinland.com/"
 
 TEST_CHANNEL_NAME = "TEST_CHANNEL"
 TEST_UPDATED      = "TEST_CHANNEL_UPDATED"
-TEST_ARTICLE_ID = "1"
-
 
 ERROR_PARAMETER = "ERROR_ON_PURPOSE"
-
+ 
 def test_channels_post():
     response = requests.post(CHANNEL_ENDPOINT)
     assert response.status_code == 400 # Bad request - no channel name provided
@@ -59,39 +57,52 @@ def test_articles_post():
 def test_articles_get():
     response = requests.get(ARTICLE_ENDPOINT)
     assert len(response.json()) == 1 and response.json()[0]["article_url"] == TEST_URL
+    TEST_ARTICLE_ID = response.json()[0]["article_id"]
     response = requests.get(ARTICLE_ENDPOINT + ERROR_PARAMETER)
     assert response.status_code == 404 # Non-existent article
-    response = requests.get(ARTICLE_ENDPOINT + TEST_ARTICLE_ID)
+    response = requests.get(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID))
     assert response.status_code == 200
 
 def test_articles_put():
+    # To get current article id
+    response = requests.get(ARTICLE_ENDPOINT)
+    TEST_ARTICLE_ID = response.json()[0]["article_id"]
+
     response = requests.put(ARTICLE_ENDPOINT, json={})
     assert response.status_code == 400
     response = requests.put(ARTICLE_ENDPOINT + ERROR_PARAMETER)
     assert response.status_code == 404
-    response = requests.put(ARTICLE_ENDPOINT + TEST_ARTICLE_ID, json={"channel_name": TEST_CHANNEL_NAME})
+    response = requests.put(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID), json={"channel_name": TEST_CHANNEL_NAME})
     assert response.status_code == 200
-    requests.put(ARTICLE_ENDPOINT + TEST_ARTICLE_ID, json={"channel_name": TEST_CHANNEL_NAME}) # repeat to check for idempotency
-    response = requests.get(ARTICLE_ENDPOINT + TEST_ARTICLE_ID)
+    requests.put(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID), json={"channel_name": TEST_CHANNEL_NAME}) # repeat to check for idempotency
+    response = requests.get(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID))
     assert len(response.json()["channels"]) == 1 # Repeated calls does not result in channel duplicates
 
 def test_articles_patch():
+    # To get current article id
+    response = requests.get(ARTICLE_ENDPOINT)
+    TEST_ARTICLE_ID = response.json()[0]["article_id"]
+
     response = requests.patch(ARTICLE_ENDPOINT, json={})
     assert response.status_code == 400
     response = requests.patch(ARTICLE_ENDPOINT + ERROR_PARAMETER)
     assert response.status_code == 404
     response = requests.patch(ARTICLE_ENDPOINT + ERROR_PARAMETER, json={"channel_name": TEST_CHANNEL_NAME})
     assert response.status_code == 404
-    response = requests.patch(ARTICLE_ENDPOINT + TEST_ARTICLE_ID, json={"channel_name": TEST_CHANNEL_NAME})
+    response = requests.patch(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID), json={"channel_name": TEST_CHANNEL_NAME})
     assert response.status_code == 200
-    response = requests.get(ARTICLE_ENDPOINT + TEST_ARTICLE_ID)
+    response = requests.get(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID))
     assert len(response.json()["channels"]) == 0
     requests.delete(CHANNEL_ENDPOINT + TEST_CHANNEL_NAME) # clean up created channel 
 
 def test_articles_delete():
+    # To get current article id
+    response = requests.get(ARTICLE_ENDPOINT)
+    TEST_ARTICLE_ID = response.json()[0]["article_id"]
+
     response = requests.delete(ARTICLE_ENDPOINT)
     assert response.status_code == 400
     response = requests.delete(ARTICLE_ENDPOINT + ERROR_PARAMETER)
     assert response.status_code == 404
-    response = requests.delete(ARTICLE_ENDPOINT + TEST_ARTICLE_ID)
+    response = requests.delete(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID))
     assert response.status_code == 200
