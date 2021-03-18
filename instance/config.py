@@ -34,3 +34,5 @@ ARTICLE_LOG_FILE = "article.log"
 password = environ.get("PASSWORD")
 hash_alg = environ.get("PASSWORD_HASH_ALGORITHM")
 salt_len = environ.get("SALT_LENGTH")
+SECRET_KEY = environ.get("SECRET_KEY")
+TOKEN_VALID_PERIOD = environ.get("TOKEN_VALID_PERIOD")

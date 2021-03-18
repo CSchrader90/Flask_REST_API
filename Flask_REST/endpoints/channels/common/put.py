@@ -2,8 +2,11 @@ from flask import jsonify, make_response, request
 
 from Flask_REST.models.models import ChannelModel, ChannelSchema, db
 from Logging.loggers import channel_logger
+from Flask_REST.authorization.auth import verify_token
 
-def put(self, channel_name):
+
+@verify_token
+def put(self, user, channel_name):
 	"""Update a channels name """
 
 	old_channel_name = channel_name # from query string
@@ -18,12 +21,13 @@ def put(self, channel_name):
 
 	new_channel_name = request.get_json()["channel_name"] # from JSON body
 
-	channel_exists = ChannelModel.query.filter_by(channel=old_channel_name).first()
+	channel_exists = ChannelModel.query.filter_by(user=user.username, 
+												  channel=old_channel_name).first()
 	if not channel_exists:
 		return make_response("Channel doesn't exist", 404)
 	db.session.delete(channel_exists)
 
-	new_channel = ChannelModel(channel=new_channel_name)
+	new_channel = ChannelModel(user=user.username, channel=new_channel_name)
 	db.session.add(new_channel)
 	db.session.commit()
 	return make_response("Channel name updated", 200)

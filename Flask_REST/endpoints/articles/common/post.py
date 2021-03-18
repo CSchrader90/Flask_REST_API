@@ -5,8 +5,10 @@ import requests
 
 from Flask_REST.models.models import ArticleModel, ChannelModel, ArticleSchema, db
 from Logging.loggers import article_logger
+from Flask_REST.authorization.auth import verify_token
 
-def post(self, article_id):
+@verify_token
+def post(self, user, article_id):
     """ Add article provided at URL """
 
     if not request.is_json:
@@ -21,11 +23,13 @@ def post(self, article_id):
     title, word_count = fetch_url(request_args["article_url"])
 
     # if article entry at URL exists, fetch again (possible update)
-    old_entry = ArticleModel.query.filter_by(article_url=request_args["article_url"]).first()
+    old_entry = ArticleModel.query.filter_by(user=user.username,
+                                             article_url=request_args["article_url"]).first()
     if old_entry:
         db.session.delete(old_entry)
 
-    article = ArticleModel(article_url=request_args["article_url"], word_count=word_count, title=title)
+    article = ArticleModel(user=user.username, article_url=request_args["article_url"], 
+                           word_count=word_count, title=title)
     db.session.add(article)
     db.session.commit()
 

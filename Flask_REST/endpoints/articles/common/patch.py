@@ -3,8 +3,10 @@ import requests
 
 from Flask_REST.models.models import ArticleModel, ChannelModel, ArticleSchema, db
 from Logging.loggers import article_logger
+from Flask_REST.authorization.auth import verify_token
 
-def patch(self, article_id):
+@verify_token
+def patch(self, user, article_id):
 	""" Remove an article from a channel"""
 
 	if article_id == 0:
@@ -17,11 +19,12 @@ def patch(self, article_id):
 	if "channel_name" not in request_body:
 		return make_response("Channel name not provided", 400)
 
-	article = ArticleModel.query.filter_by(article_id=article_id).first()
+	article = ArticleModel.query.filter_by(user=user.username, article_id=article_id).first()
 	if not article:
 		return make_response("Article not found", 404)
 
-	channel = ChannelModel.query.filter_by(channel=request_body["channel_name"]).first()
+	channel = ChannelModel.query.filter_by(user=user.username, 
+										   channel=request_body["channel_name"]).first()
 	if not channel:
 		return make_response("Channel not found", 404)
 
