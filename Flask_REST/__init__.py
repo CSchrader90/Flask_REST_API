@@ -1,9 +1,12 @@
 """ Flask API factory """
 from flask import Flask
 import os
+import uuid
+from werkzeug.security import generate_password_hash
 
-from .models.models import *
+from .models.models import db, UserModel
 from instance.config import DevelopmentConfig, TestConfig, ProductionConfig
+from instance.config import password, hash_alg, salt_len
 from Flask_REST.endpoints.channels.v1 import channel_endpoint as channel_v1
 from Flask_REST.endpoints.articles.v1 import article_endpoint as article_v1
 
@@ -21,6 +24,15 @@ def create_app():
 	db.init_app(app)
 	with app.app_context():
 		db.create_all()
+
+		# create a new root user if doesn't exist
+		root_user_exists = UserModel.query.filter_by(is_root=True).first()
+		if not root_user_exists:
+			db.session.add(UserModel(username="root", \
+									password = generate_password_hash(password, hash_alg, int(salt_len)),
+									public_id = str(uuid.uuid4()),
+									is_root = True))
+			db.session.commit()
 
 	app.register_blueprint(channel_v1)
 	app.register_blueprint(article_v1)

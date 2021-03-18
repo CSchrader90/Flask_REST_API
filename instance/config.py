@@ -29,3 +29,8 @@ CHANNEL_LOG_NAME = "channel_log"
 ARTICLE_LOG_NAME = "article_log"
 CHANNEL_LOG_FILE = "channel.log"
 ARTICLE_LOG_FILE = "article.log"
+
+# Security configuration
+password = environ.get("PASSWORD")
+hash_alg = environ.get("PASSWORD_HASH_ALGORITHM")
+salt_len = environ.get("SALT_LENGTH")
