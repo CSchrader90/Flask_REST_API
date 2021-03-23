@@ -3,6 +3,7 @@ import requests
 
 CHANNEL_ENDPOINT = "http://localhost:5000/v1/channels/"
 ARTICLE_ENDPOINT = "http://localhost:5000/v1/articles/"
+LOGIN_ENDPOINT   = "http://localhost:5000/login/"
 
 TEST_URL = "https://www.visitfinland.com/"
 
@@ -10,7 +11,11 @@ TEST_CHANNEL_NAME = "TEST_CHANNEL"
 TEST_UPDATED      = "TEST_CHANNEL_UPDATED"
 
 ERROR_PARAMETER = "ERROR_ON_PURPOSE"
- 
+
+def test_login(start_server):
+    response = requests.post(LOGIN_ENDPOINT, auth=('root', 'admin_password'))
+    assert response.get_json()["token"] is not None
+
 def test_channels_post():
     response = requests.post(CHANNEL_ENDPOINT)
     assert response.status_code == 400 # Bad request - no channel name provided

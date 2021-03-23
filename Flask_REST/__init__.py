@@ -10,7 +10,7 @@ from instance.config import password, hash_alg, salt_len
 from .endpoints.channels.v1 import channel_endpoint as channel_v1
 from .endpoints.articles.v1 import article_endpoint as article_v1
 from .endpoints.login import login_v1
-from .endpoints.users import users
+from .endpoints.users import users_v1
 
 def create_app():
 	app = Flask(__name__, instance_relative_config=True)
@@ -39,7 +39,6 @@ def create_app():
 	app.register_blueprint(channel_v1)
 	app.register_blueprint(article_v1)
 	app.add_url_rule("/login/", "login", login_v1.login, methods=["POST"])
-	app.add_url_rule("/user/", "user", users.create_user, methods=["POST"])
-
+	app.add_url_rule("/user/", "user", users_v1.create_user, methods=["POST"])
 
 	return app

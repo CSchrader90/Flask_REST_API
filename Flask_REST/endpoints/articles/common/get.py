@@ -15,9 +15,12 @@ def get(self, user, article_id):
 		return make_response(jsonify(output), 200)
 
 	article = ArticleModel.query.filter_by(user=user.username, article_id=article_id).first()
+	article_logger.info(f"Article found [url: {article.article_url}]")
 	if not article:
+		article_logger.error(f"Article not found [url: {article.article_url}]")
 		return make_response("Article not found", 404)
 
 	schema = ArticleSchema(many=False)
 	output = schema.dump(article)
+	article_logger.info(f"Returning article [url: {article.article_url}]")
 	return make_response(output, 200)

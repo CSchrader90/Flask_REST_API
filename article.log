@@ -22,3 +22,10 @@ INFO|2021-03-18 13:45:02,357|Received request to add article|[url: https://visit
 INFO|2021-03-18 19:55:17,186|Received request to add article|[url: https://www.visitfinland.com/]
 INFO|2021-03-18 19:55:23,510|Received request to add article|[url: https://www.australia.com/en-us]
 INFO|2021-03-18 19:55:25,727|Received request to add article|[url: https://visitsweden.com/]
+INFO|2021-03-22 22:40:00,068|Received request to add article|[url: http://www.visitfinland.com/]
+INFO|2021-03-22 22:40:00,774|Fetched article|[url: {url}
+INFO|2021-03-22 22:40:00,819|Added article to database|[url:http://www.visitfinland.com/
+INFO|2021-03-22 22:40:45,754|Received request to add article|[url: http://www.visitfinland.com/]
+INFO|2021-03-22 22:40:46,418|Fetched article|[url: http://www.visitfinland.com/
+DEBUG|2021-03-22 22:40:46,421|Added article found in database - refetching|[url:http://www.visitfinland.com/
+INFO|2021-03-22 22:40:46,459|Added article to database|[url:http://www.visitfinland.com/

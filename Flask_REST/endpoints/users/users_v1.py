@@ -1,7 +1,6 @@
 from flask import request, make_response, jsonify
 from werkzeug.security import generate_password_hash
 import datetime
-
 import uuid
 import jwt
 

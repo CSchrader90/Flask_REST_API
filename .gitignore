@@ -1,3 +1,4 @@
 instance/.env
 .vscode/*
 flask_rest_env/*
+flask_virtual_env/*

@@ -2,7 +2,7 @@ import os, sys
 import pytest
 from xprocess import ProcessStarter
 
-@pytest.fixture(autouse=True, scope="session")
+@pytest.fixture(autouse=False, scope="session")
 def start_server(xprocess):
     os.environ["FLASK_APP"] = "/home/caleb/Flask_REST_API/Flask_REST"
     os.environ["FLASK_ENV"] = "test"
