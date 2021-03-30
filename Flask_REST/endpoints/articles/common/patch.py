@@ -30,7 +30,7 @@ def patch(self, user, article_id):
 	channel = ChannelModel.query.filter_by(user=user.username, 
 										   channel=request_body["channel_name"]).first()
 	if not channel:
-		article_logger.error(f"Channel not found with given channel to PUT [channel: {request_body["channel_name"]}]")
+		article_logger.error(f"Channel not found with given channel to PUT [channel: {request_body['channel_name']}]")
 		return make_response("Channel not found", 404)
 
 	channel.articles.remove(article)
