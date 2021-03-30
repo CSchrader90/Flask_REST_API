@@ -3,9 +3,11 @@ from flask import jsonify, make_response, request
 from Flask_REST.models.models import ChannelModel, ChannelSchema, db
 from Logging.loggers import channel_logger
 from Flask_REST.authorization.auth import verify_token
+from Flask_REST.endpoints.request_checks.checkForJsonBody import verify_json
 
 
 @verify_token
+@verify_json(logger=channel_logger, verb="PUT", required_field="channel_name")
 def put(self, user, channel_name):
 	"""Update a channels name """
 
@@ -13,14 +15,6 @@ def put(self, user, channel_name):
 	if old_channel_name is None:
 		channel_logger.error(f"Failed to update channel (existing resource not provided in PUT|[channel:<none>,user:{user.username}]")
 		return make_response("Channel name not provided", 400)
-
-	if not request.is_json:
-		channel_logger.error(f"Failed to update channel (JSON not found in PUT)|[channel:<none>,user:{user.username}]")
-		return make_response("Missing request JSON body", 400)
-
-	if "channel_name" not in request.get_json():
-		channel_logger.error(f"Failed to add channel (channel not provided in body of PUT)|[channel:<none>,user:{user.username}]")
-		return make_response("No updated name provided in JSON body", 400)
 
 	new_channel_name = request.get_json()["channel_name"] # from JSON body
 

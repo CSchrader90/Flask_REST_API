@@ -24,7 +24,7 @@ class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_DEV_DATABASE_URI")
     DEBUG=True
     CACHE_TYPE="SimpleCache" 
-    CACHE_DEFAULT_TIMEOUT=300
+    CACHE_DEFAULT_TIMEOUT=3
 
 
 # Logging configuration

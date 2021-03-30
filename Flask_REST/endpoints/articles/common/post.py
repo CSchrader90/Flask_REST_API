@@ -7,23 +7,19 @@ from Flask_REST.caching.caching import cache, cache_key
 from Flask_REST.models.models import ArticleModel, ChannelModel, ArticleSchema, db
 from Logging.loggers import article_logger
 from Flask_REST.authorization.auth import verify_token
+from Flask_REST.endpoints.request_checks.checkForJsonBody import verify_json
 
 @verify_token
+@verify_json(logger=article_logger, verb="POST", required_field="article_url")
 @cache.cached(key_prefix=cache_key)
 def post(self, user, article_id):
     """ Add article provided at URL """
 
-    if not request.is_json:
-        article_logger.error(f"Failed to add article (JSON not found in POST)|[url:<none>]")
-        return make_response("Bad request - no JSON body", 400)
-    url = request.get_json()["article_url"]
+    request_args = request.get_json()
+
+    url = request_args["article_url"]
     article_logger.info(f"Received request to add article|[url: {url}]")
 
-    if not request.is_json or not request.get_json()["article_url"]:
-        article_logger.error(f"Failed to add article (URL not provided in POST)|[url:<none>]")
-        return make_response("Bad request - URL not provided", 400)
-
-    request_args = request.get_json()
     title, word_count = fetch_url(request_args["article_url"])
     article_logger.info(f"Fetched article|[url: {url}")
 

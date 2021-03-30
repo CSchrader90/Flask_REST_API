@@ -4,22 +4,16 @@ import requests
 from Flask_REST.models.models import ArticleModel, ChannelModel, ArticleSchema, db
 from Logging.loggers import article_logger
 from Flask_REST.authorization.auth import verify_token
+from Flask_REST.endpoints.request_checks.checkForJsonBody import verify_json
 
 @verify_token
+@verify_json(logger=article_logger, verb="PUT", required_field="channel_name")
 def put(self, user, article_id):
 	""" Add existing article into existing channel """
 
 	if article_id == 0:
 		article_logger.error(f"Failed to find article_id in PUT|[article_id:<none>]")
 		return make_response("Bad request - article id not provided", 400)
-
-	if not request.is_json:
-		article_logger.error(f"Failed find JSON body in PUT|[article_id:<none>]")
-		return make_response("Bad request - JSON body not provided", 400)
-
-	if "channel_name" not in request.get_json():
-		article_logger.error(f"Failed to find channel in PUT|[channel: <none>, article_id: {article_id}]")
-		return make_response("Channel name not provided", 400)
 
 	article_exists = ArticleModel.query.filter_by(user=user.username, 
 												  article_id=article_id).first()
