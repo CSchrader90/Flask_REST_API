@@ -16,12 +16,11 @@ def verify_token(f):
         if not token:
             return make_response("access token not found", 401)
 
-#        try: 
-        data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-        print(data['public_id'])
-        user = UserModel.query.filter_by(public_id=data['public_id']).first()
-#        except:
-#           return make_response("invalid token", 401)
+        try: 
+            data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+            user = UserModel.query.filter_by(public_id=data['public_id']).first()
+        except:
+           return make_response("invalid token", 401)
 
         return f(self, user, *args, **kwargs)
 

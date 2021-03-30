@@ -1,10 +1,12 @@
 from flask import jsonify, make_response, request
 
+from Flask_REST.caching.caching import cache, cache_key
 from Flask_REST.models.models import ChannelModel, ChannelSchema, db
 from Logging.loggers import channel_logger
 from Flask_REST.authorization.auth import verify_token
 
 @verify_token
+@cache.cached()
 def get(self, user, channel_name):
 	"""Pass channel_name to get info for channel otherwise return list of all channels"""
 

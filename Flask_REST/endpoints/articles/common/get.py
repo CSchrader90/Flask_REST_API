@@ -1,10 +1,12 @@
 from flask import request, make_response, jsonify
 
+from Flask_REST.caching.caching import cache, cache_key
 from Flask_REST.models.models import ArticleModel, ChannelModel, ArticleSchema, db
 from Logging.loggers import article_logger
 from Flask_REST.authorization.auth import verify_token
 
 @verify_token
+@cache.cached()
 def get(self, user, article_id):
 	""" Get single article provided in URI or list all """
 	

@@ -5,6 +5,7 @@ import uuid
 from werkzeug.security import generate_password_hash
 
 from .models.models import db, UserModel
+from .caching.caching import cache
 from instance.config import DevelopmentConfig, TestConfig, ProductionConfig
 from instance.config import password, hash_alg, salt_len
 from .endpoints.channels.v1 import channel_endpoint as channel_v1
@@ -23,7 +24,9 @@ def create_app():
 	else:
 		app.config.from_object(DevelopmentConfig)
 
+	cache.init_app(app)
 	db.init_app(app)
+	
 	with app.app_context():
 		db.create_all()
 
