@@ -12,13 +12,13 @@ def post(self, user, article_id):
     """ Add article provided at URL """
 
     if not request.is_json:
-        article_logger.error(f"Failed to add article (JSON not found in POST)|[url: <none> ]")
+        article_logger.error(f"Failed to add article (JSON not found in POST)|[url:<none>]")
         return make_response("Bad request - no JSON body", 400)
     url = request.get_json()["article_url"]
     article_logger.info(f"Received request to add article|[url: {url}]")
 
     if not request.is_json or not request.get_json()["article_url"]:
-        article_logger.error(f"Failed to add article (URL not provided in POST)|[url: <none> ]")
+        article_logger.error(f"Failed to add article (URL not provided in POST)|[url:<none>]")
         return make_response("Bad request - URL not provided", 400)
 
     request_args = request.get_json()
@@ -29,7 +29,7 @@ def post(self, user, article_id):
     old_entry = ArticleModel.query.filter_by(user=user.username,
                                              article_url=request_args["article_url"]).first()
     if old_entry:
-        article_logger.debug(f"Added article found in database - refetching|[url:{url}")
+        article_logger.debug(f"Added article found in database - refetching|[url:{url}]")
         db.session.delete(old_entry)
 
     article = ArticleModel(user=user.username, article_url=request_args["article_url"], 

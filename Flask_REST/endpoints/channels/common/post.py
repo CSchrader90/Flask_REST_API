@@ -20,14 +20,12 @@ def post(self, user, channel_name):
 	channel_exists = ChannelModel.query.filter_by(user=user.username, 
 												  channel=request_args["channel_name"]).first()
 	if channel_exists:
-		channel_logger.info(f"Channel already exists in POST|[channel: {request_args["channel_name"]} ,
-															user: {user.username}]")
+		channel_logger.info(f"Channel already exists in POST|[channel: {request_args["channel_name"]},user: {user.username}]")
 		return make_response("Channel already exists", 400)
 	
 	new_channel_object = ChannelModel(user=user.username, channel=request_args["channel_name"])
 	db.session.add(new_channel_object)
 	db.session.commit()
 
-	channel_logger.info(f"New channel created successfully in POST|[channel: {request_args["channel_name"]} ,
-															user: {user.username}]")
+	channel_logger.info(f"New channel created successfully in POST|[channel: {request_args["channel_name"]},user: {user.username}]")
 	return make_response("New channel created successfully", 201)
