@@ -8,3 +8,4 @@ services:
     image: "postgres:13.2"
     environment: 
       - POSTGRES_PASSWORD=password
+      - POSTGERS_DB=Flask_REST_API

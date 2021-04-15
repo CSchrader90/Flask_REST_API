@@ -16,6 +16,7 @@ Flask-Caching==1.10.1
 Flask-RESTful==0.3.8
 Flask-SQLAlchemy==2.5.1
 greenlet==1.0.0
+html5lib==1.0.1
 idna==2.8
 iniconfig==1.1.1
 ipaddr==2.2.0
@@ -31,6 +32,7 @@ packaging==20.3
 pep517==0.8.2
 pluggy==0.13.1
 progress==1.5
+psycopg2-binary==2.8.6
 py==1.10.0
 PyJWT==2.0.1
 pyparsing==2.4.6

@@ -19,7 +19,7 @@ class TestConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS=False
     SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_PROD_DATABASE_URI")
-    CACHE_DEFAULT_TIMEOUT=3
+    CACHE_DEFAULT_TIMEOUT=15
 
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS=True
