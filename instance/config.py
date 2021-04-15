@@ -9,6 +9,7 @@ load_dotenv(path.join(basedir, ".env"))
 class BaseConfig:
     JSON_SORT_KEYS = False
     SECRET_KEY = environ.get("SECRET_KEY")
+    CACHE_TYPE="SimpleCache" 
 
 class TestConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS=True
@@ -24,7 +25,6 @@ class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS=True
     SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_DEV_DATABASE_URI")
     DEBUG=True
-    CACHE_TYPE="SimpleCache" 
     CACHE_DEFAULT_TIMEOUT=0.0000000001 # Effectively disable cache
 
 # Logging configuration
