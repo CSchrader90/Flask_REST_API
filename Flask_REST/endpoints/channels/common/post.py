@@ -13,11 +13,12 @@ def post(self, user, channel_name):
 	"""Add a new channel"""
 
 	request_args = request.get_json()
+	channel_logger.info(f"Received POST|[channel_name:{channel_name}")
 
 	channel_exists = ChannelModel.query.filter_by(user=user.username, channel=request_args["channel_name"]).first()
 	if channel_exists:
 		channel_logger.info(f"Channel already exists in POST|[channel:{request_args['channel_name']},user:{user.username}]")
-		return make_response("Channel already exists", 400)
+		return make_response("Channel already exists", 200)
 
 	new_channel_object = ChannelModel(user=user.username, channel=request_args["channel_name"])
 	db.session.add(new_channel_object)

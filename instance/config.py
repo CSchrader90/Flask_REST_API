@@ -10,7 +10,7 @@ class BaseConfig:
     JSON_SORT_KEYS = False
     SECRET_KEY = environ.get("SECRET_KEY")
 
-class TestConfig():
+class TestConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS=True
     SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_PROD_DATABASE_URI")
     DEBUG=True
@@ -18,14 +18,14 @@ class TestConfig():
 class ProductionConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS=False
     SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_PROD_DATABASE_URI")
+    CACHE_DEFAULT_TIMEOUT=3
 
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS=True
     SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_DEV_DATABASE_URI")
     DEBUG=True
     CACHE_TYPE="SimpleCache" 
-    CACHE_DEFAULT_TIMEOUT=3
-
+    CACHE_DEFAULT_TIMEOUT=0.0000000001 # Effectively disable cache
 
 # Logging configuration
 CHANNEL_LOG_NAME = "channel_log"

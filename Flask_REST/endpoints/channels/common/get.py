@@ -18,10 +18,10 @@ def get(self, user, channel_name):
 
 	result = ChannelModel.query.filter_by(user=user.username, channel=channel_name).first()
 	if result is None:
-		channel_logger.error(f"Channel does not exist in GET |[user:{user.username},channel:{channel}]")
+		channel_logger.error(f"Channel does not exist in GET |[user:{user.username},channel:{channel_name}]")
 		return make_response("Channel does not exist", 404)
 
 	schema = ChannelSchema(many=False)
 	output = schema.dump(result)
-	channel_logger.info(f"Returning channel in GET|[channel:{channel},user: {user.username}]")
+	channel_logger.info(f"Returning channel in GET|[channel:{channel_name},user: {user.username}]")
 	return make_response(output, 200)

@@ -24,7 +24,7 @@ def put(self, user, article_id):
 	new_channel_name = request.get_json()["channel_name"]
 	channel = ChannelModel.query.filter_by(user=user.username, channel=new_channel_name).first()
 	if not channel: # if channel doesn't exist, create it
-		article_logger.info(f"channel not found in PUT - creating|[article_id:{article_id},channel:{new_channel_name}]")
+		article_logger.info(f"channel not found in PUT-creating|[article_id:{article_id},channel:{new_channel_name}]")
 		channel = ChannelModel(user=user.username, channel=new_channel_name)
 		db.session.add(channel)
 

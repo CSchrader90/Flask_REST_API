@@ -1,9 +1,10 @@
-""" Pytest test functions for both endpoints """
-import requests
+""" Pytest test functions """
+from flask import request
+from base64 import b64encode
 
-CHANNEL_ENDPOINT = "http://localhost:5000/v1/channels/"
-ARTICLE_ENDPOINT = "http://localhost:5000/v1/articles/"
-LOGIN_ENDPOINT   = "http://localhost:5000/login/"
+CHANNEL_ENDPOINT = "/v1/channels/"
+ARTICLE_ENDPOINT = "/v1/articles/"
+LOGIN_ENDPOINT   = "/login/"
 
 TEST_URL = "https://www.visitfinland.com/"
 
@@ -12,102 +13,120 @@ TEST_UPDATED      = "TEST_CHANNEL_UPDATED"
 
 ERROR_PARAMETER = "ERROR_ON_PURPOSE"
 
-def test_login(start_server):
-    response = requests.post(LOGIN_ENDPOINT, auth=('root', 'admin_password'))
+def test_login(client):
+    credentials = b64encode(b"root:admin_password").decode('utf-8')
+    response  = client.post(LOGIN_ENDPOINT, headers={"Authorization": f"Basic {credentials}"})
     assert response.get_json()["token"] is not None
 
-def test_channels_post():
-    response = requests.post(CHANNEL_ENDPOINT)
+def test_channels_post(client, token, request_context_fixture):
+    response = client.post(CHANNEL_ENDPOINT, headers={'Content-Type': 'application/json',
+                                            'x-access-token': token})
     assert response.status_code == 400 # Bad request - no channel name provided
-    response = requests.post(CHANNEL_ENDPOINT, json={"channel_name": TEST_CHANNEL_NAME})
-    assert response.status_code == 201 # Should succeed 
-    response = requests.post(CHANNEL_ENDPOINT, json={"channel_name": TEST_CHANNEL_NAME})
-    assert response.status_code == 400 # Bad request - channel already exists (not mandatory)
+    response = client.post(CHANNEL_ENDPOINT, headers={'x-access-token': token},
+                                             json={'channel_name': TEST_CHANNEL_NAME})
+    assert response.status_code == 201 # Should succeed
+    
+    response = client.post(CHANNEL_ENDPOINT, headers={'x-access-token': token},
+                                            json={"channel_name": TEST_CHANNEL_NAME})
+    assert response.status_code == 200 # channel already exists (succeeds but not double entries)
 
-def test_channels_put():
-    response = requests.put(CHANNEL_ENDPOINT + ERROR_PARAMETER)
+def test_channels_put(client, token, request_context_fixture):
+    response = client.put(CHANNEL_ENDPOINT + ERROR_PARAMETER, headers={'Content-Type': 'application/json',
+                                            'x-access-token': token})
     assert response.status_code == 400 # Channel not found 
-    response = requests.put(CHANNEL_ENDPOINT + TEST_CHANNEL_NAME, json={})
+    response = client.put(CHANNEL_ENDPOINT + TEST_CHANNEL_NAME,headers={'x-access-token': token}, 
+                                                            json={})
     assert response.status_code == 400 # Found channel but not provided with updated name
-    response = requests.put(CHANNEL_ENDPOINT + TEST_CHANNEL_NAME, json = {"channel_name": TEST_UPDATED})
+    response = client.put(CHANNEL_ENDPOINT + TEST_CHANNEL_NAME,headers={'x-access-token': token},
+                                                            json = {"channel_name": TEST_UPDATED})
     assert response.status_code == 200 # Update the channel name
-    response = requests.put(CHANNEL_ENDPOINT + TEST_UPDATED, json = {"channel_name": TEST_CHANNEL_NAME})
+    response = client.put(CHANNEL_ENDPOINT + TEST_UPDATED, headers={'x-access-token': token},
+                                                        json = {"channel_name": TEST_CHANNEL_NAME})
     assert response.status_code == 200 # Update back to TEST_CHANNEL_NAME
 
-def test_channels_get():
-    response = requests.get(CHANNEL_ENDPOINT + ERROR_PARAMETER)
+def test_channels_get(client, token, request_context_fixture):
+    response = client.get(CHANNEL_ENDPOINT + ERROR_PARAMETER, headers={'x-access-token': token})
     assert response.status_code == 404 
-    response = requests.get(CHANNEL_ENDPOINT + TEST_CHANNEL_NAME)
+    response = client.get(CHANNEL_ENDPOINT + TEST_CHANNEL_NAME, headers={'x-access-token': token})
     assert response.status_code == 200
-    assert response.json()['channel'] == TEST_CHANNEL_NAME
-    response = requests.get(CHANNEL_ENDPOINT)
-    assert TEST_CHANNEL_NAME in response.json()["channels"]
+    assert response.get_json()['channel'] == TEST_CHANNEL_NAME
+    response = client.get(CHANNEL_ENDPOINT, headers={'x-access-token': token}) ###
+    assert TEST_CHANNEL_NAME in response.get_json()["channels"]
 
-def test_channels_delete():
-    response = requests.delete(CHANNEL_ENDPOINT + ERROR_PARAMETER)
+def test_channels_delete(client, token, request_context_fixture):
+    response = client.delete(CHANNEL_ENDPOINT + ERROR_PARAMETER, headers={'x-access-token': token})
     assert response.status_code == 404
-    response = requests.delete(CHANNEL_ENDPOINT + TEST_CHANNEL_NAME)
+    response = client.delete(CHANNEL_ENDPOINT + TEST_CHANNEL_NAME, headers={'x-access-token': token})
     assert response.status_code == 200
 
-def test_articles_post():
-    response = requests.post(ARTICLE_ENDPOINT)
+def test_articles_post(client, token, request_context_fixture):
+    response = client.post(ARTICLE_ENDPOINT, headers={'x-access-token': token})
     assert response.status_code == 400 # No Article URL provided
-    response = requests.post(ARTICLE_ENDPOINT, json={"article_url": ERROR_PARAMETER})
+    response = client.post(ARTICLE_ENDPOINT, headers={'x-access-token': token},
+                                            json={"article_url": ERROR_PARAMETER})
     assert response.status_code == 400 # Malformed URL
-    response = requests.post(ARTICLE_ENDPOINT, json={"article_url": "https://www.f.com"})
+    response = client.post(ARTICLE_ENDPOINT, headers={'x-access-token': token},
+                                            json={"article_url": "https://www.f.com"})
     assert response.status_code == 404 # Non-existent URL
-    response = requests.post(ARTICLE_ENDPOINT, json={"article_url": TEST_URL})
+    response = client.post(ARTICLE_ENDPOINT, headers={'x-access-token': token},
+                                            json={"article_url": TEST_URL})
     assert response.status_code == 201 # Create a valid entry (Not idempotent)
 
-def test_articles_get():
-    response = requests.get(ARTICLE_ENDPOINT)
-    assert len(response.json()) == 1 and response.json()[0]["article_url"] == TEST_URL
-    TEST_ARTICLE_ID = response.json()[0]["article_id"]
-    response = requests.get(ARTICLE_ENDPOINT + ERROR_PARAMETER)
+def test_articles_get(client, token, request_context_fixture):
+    response = client.get(ARTICLE_ENDPOINT, headers={'x-access-token': token})
+    assert len(response.get_json()) == 1 and response.get_json()[0]["article_url"] == TEST_URL
+    TEST_ARTICLE_ID = response.get_json()[0]["article_id"]
+    response = client.get(ARTICLE_ENDPOINT + ERROR_PARAMETER, headers={'x-access-token': token})
     assert response.status_code == 404 # Non-existent article
-    response = requests.get(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID))
+    response = client.get(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID), headers={'x-access-token': token})
     assert response.status_code == 200
 
-def test_articles_put():
+def test_articles_put(client, token, request_context_fixture):
     # To get current article id
-    response = requests.get(ARTICLE_ENDPOINT)
-    TEST_ARTICLE_ID = response.json()[0]["article_id"]
+    response = client.get(ARTICLE_ENDPOINT, headers={'x-access-token': token})
+    TEST_ARTICLE_ID = response.get_json()[0]["article_id"]
 
-    response = requests.put(ARTICLE_ENDPOINT, json={})
+    response = client.put(ARTICLE_ENDPOINT, headers={'x-access-token': token}, json={})
     assert response.status_code == 400
-    response = requests.put(ARTICLE_ENDPOINT + ERROR_PARAMETER)
+    response = client.put(ARTICLE_ENDPOINT + ERROR_PARAMETER, headers={'x-access-token': token})
     assert response.status_code == 404
-    response = requests.put(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID), json={"channel_name": TEST_CHANNEL_NAME})
+    response = client.put(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID), headers={'x-access-token': token},
+                                                                 json={"channel_name": TEST_CHANNEL_NAME})
     assert response.status_code == 200
-    requests.put(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID), json={"channel_name": TEST_CHANNEL_NAME}) # repeat to check for idempotency
-    response = requests.get(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID))
-    assert len(response.json()["channels"]) == 1 # Repeated calls does not result in channel duplicates
+    client.put(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID), headers={'x-access-token': token}, 
+                                                        json={"channel_name": TEST_CHANNEL_NAME}) # repeat to check for idempotency
 
-def test_articles_patch():
+    response = client.get(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID), headers={'x-access-token': token})
+
+    assert len(response.get_json()["channels"]) == 1 # Repeated calls do not result in channel duplicates
+
+def test_articles_patch(client, token, request_context_fixture):
     # To get current article id
-    response = requests.get(ARTICLE_ENDPOINT)
-    TEST_ARTICLE_ID = response.json()[0]["article_id"]
+    response = client.get(ARTICLE_ENDPOINT, headers={'x-access-token': token})
+    TEST_ARTICLE_ID = response.get_json()[0]["article_id"]
 
-    response = requests.patch(ARTICLE_ENDPOINT, json={})
+    response = client.patch(ARTICLE_ENDPOINT, headers={'x-access-token': token}, json={})
     assert response.status_code == 400
-    response = requests.patch(ARTICLE_ENDPOINT + ERROR_PARAMETER)
+    response = client.patch(ARTICLE_ENDPOINT + ERROR_PARAMETER, headers={'x-access-token': token})
     assert response.status_code == 404
-    response = requests.patch(ARTICLE_ENDPOINT + ERROR_PARAMETER, json={"channel_name": TEST_CHANNEL_NAME})
+    response = client.patch(ARTICLE_ENDPOINT + ERROR_PARAMETER, headers={'x-access-token': token},
+                                                            json={"channel_name": TEST_CHANNEL_NAME})
     assert response.status_code == 404
-    response = requests.patch(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID), json={"channel_name": TEST_CHANNEL_NAME})
+    response = client.patch(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID), headers={'x-access-token': token}, 
+                                                            json={"channel_name": TEST_CHANNEL_NAME})
     assert response.status_code == 200
-    response = requests.get(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID))
-    assert len(response.json()["channels"]) == 0
-    requests.delete(CHANNEL_ENDPOINT + TEST_CHANNEL_NAME) # clean up created channel 
+    response = client.get(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID), headers={'x-access-token': token})
+    assert len(response.get_json()["channels"]) == 0
+    client.delete(CHANNEL_ENDPOINT + TEST_CHANNEL_NAME, headers={'x-access-token': token}) # clean up created channel 
 
-def test_articles_delete():
+def test_articles_delete(client, token, request_context_fixture):
     # To get current article id
-    response = requests.get(ARTICLE_ENDPOINT)
-    TEST_ARTICLE_ID = response.json()[0]["article_id"]
+    response = client.get(ARTICLE_ENDPOINT, headers={'x-access-token': token})
+    TEST_ARTICLE_ID = response.get_json()[0]["article_id"]
 
-    response = requests.delete(ARTICLE_ENDPOINT)
+    response = client.delete(ARTICLE_ENDPOINT, headers={'x-access-token': token})
     assert response.status_code == 400
-    response = requests.delete(ARTICLE_ENDPOINT + ERROR_PARAMETER)
+    response = client.delete(ARTICLE_ENDPOINT + ERROR_PARAMETER, headers={'x-access-token': token})
     assert response.status_code == 404
-    response = requests.delete(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID))
+    response = client.delete(ARTICLE_ENDPOINT + str(TEST_ARTICLE_ID), headers={'x-access-token': token})
     assert response.status_code == 200

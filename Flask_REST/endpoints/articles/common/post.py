@@ -16,21 +16,20 @@ def post(self, user, article_id):
     """ Add article provided at URL """
 
     request_args = request.get_json()
-
+ 
     url = request_args["article_url"]
-    article_logger.info(f"Received request to add article|[url: {url}]")
-
-    title, word_count = fetch_url(request_args["article_url"])
+    article_logger.info(f"Received POST|[url: {url}]")
+    
+    title, word_count = fetch_url(url)
     article_logger.info(f"Fetched article|[url: {url}")
 
     # if article entry at URL exists, fetch again (possible update)
-    old_entry = ArticleModel.query.filter_by(user=user.username, article_url=request_args["article_url"]).first()
+    old_entry = ArticleModel.query.filter_by(user=user.username, article_url=url).first()
     if old_entry:
         article_logger.debug(f"Added article found in database - refetching|[url:{url}]")
         db.session.delete(old_entry)
 
-    article = ArticleModel(user=user.username, article_url=request_args["article_url"], 
-                           word_count=word_count, title=title)
+    article = ArticleModel(user=user.username,article_url=url,word_count=word_count,title=title)
     db.session.add(article)
     db.session.commit()
 
