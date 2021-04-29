@@ -11,7 +11,7 @@ from Flask_REST.endpoints.request_checks.checkForJsonBody import verify_json
 def put(self, user, channel_name):
 	"""Update a channels name """
 
-	old_channel_name = channel_name # from query string
+	old_channel_name = channel_name # from path parameter
 	if old_channel_name is None:
 		channel_logger.error(f"Failed to update channel (existing resource not provided in PUT|[channel:<none>,user:{user.username}]")
 		return make_response("Channel name not provided", 400)
